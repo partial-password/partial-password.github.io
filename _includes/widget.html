@@ -65,6 +65,10 @@
         display: block;
         text-align: center;
     }
+
+    .hidden {
+        display: none !important;
+    }
 </style>
 
 <section class="partial-password-calc">
@@ -125,6 +129,12 @@
     PasswordSymbol.prototype.setSymbol = function (val) {
         this._el.value = val;
     };
+    PasswordSymbol.prototype.isVisible = function (val) {
+        if (val)
+            this._el.parentNode.classList.remove("hidden");
+        else
+            this._el.parentNode.classList.add("hidden");
+    };
     PasswordSymbol.prototype.copyToClipboard = function () {
         if (navigator.clipboard) {
             navigator.clipboard.writeText(this._el.value);
@@ -147,6 +157,7 @@
             symbol.init();
             symbols.push(symbol);
         }
+        onPasswordChanged("");
 
         var resetTimer;
         document.querySelector(".full-password input").addEventListener("keyup", function (evt) {
@@ -159,8 +170,10 @@
         });
 
         function onPasswordChanged(password) {
+            var noOfVisibleSymbols = Math.max(Math.ceil(password.length / 4) * 4, 8);
             for (var i = 0; i < symbols.length; i++) {
                 symbols[i].setSymbol(password.charAt(i) || PasswordSymbol.NULL);
+                symbols[i].isVisible(i < noOfVisibleSymbols);
             }
         }
 
