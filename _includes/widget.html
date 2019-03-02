@@ -1,0 +1,161 @@
+<style>
+    html {
+        font-size: 10px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .partial-password-calc {
+        text-align: center;
+    }
+
+    .full-password, .partial-password {
+        font-size: 24px;
+    }
+
+    .full-password {
+        display: inline-block;
+    }
+
+    .full-password input, .partial-password input {
+        font-size: 2.4rem;
+        height: 5rem;
+
+
+        color: rgb(118, 118, 118);
+
+        display: block;
+
+        line-height: 4rem;
+
+        padding: 0px;
+
+
+        font-family: Arial, sans-serif;
+
+
+        background-color: rgb(255, 255, 255);
+        margin: 0px 0px 0.8rem;
+        border-radius: 0.4rem;
+        transition: border-color 0.2s ease-in 0s, color 0.2s ease-in 0s;
+        border: 1px solid rgb(168, 168, 168);
+    }
+
+    .full-password input {
+        padding: 0 1rem;
+        text-align: center;
+    }
+
+    .partial-password input {
+        width: 4rem;
+        text-align: center;
+        cursor: default;
+    }
+
+    .full-password > label, .partial-password > label {
+        display: inline-block;
+    }
+
+    .full-password > label > span, .partial-password > label > span {
+        font-weight: 700;
+        font-size: 2rem;
+        color: rgb(51, 51, 51);
+        display: block;
+        text-align: center;
+    }
+</style>
+
+<section class="partial-password-calc">
+    <section class="full-password">
+        <label><input type="password" autocomplete="off" maxlength="32"
+                      placeholder="your password goes here..." autofocus/></label>
+    </section>
+    <section class="partial-password">
+        <label><input type="password" readonly/><span>1</span></label>
+        <label><input type="password" readonly/><span>2</span></label>
+        <label><input type="password" readonly/><span>3</span></label>
+        <label><input type="password" readonly/><span>4</span></label>
+        <label><input type="password" readonly/><span>5</span></label>
+        <label><input type="password" readonly/><span>6</span></label>
+        <label><input type="password" readonly/><span>7</span></label>
+        <label><input type="password" readonly/><span>8</span></label>
+        <label><input type="password" readonly/><span>9</span></label>
+        <label><input type="password" readonly/><span>10</span></label>
+        <label><input type="password" readonly/><span>11</span></label>
+        <label><input type="password" readonly/><span>12</span></label>
+        <label><input type="password" readonly/><span>13</span></label>
+        <label><input type="password" readonly/><span>14</span></label>
+        <label><input type="password" readonly/><span>15</span></label>
+        <label><input type="password" readonly/><span>16</span></label>
+        <label><input type="password" readonly/><span>17</span></label>
+        <label><input type="password" readonly/><span>18</span></label>
+        <label><input type="password" readonly/><span>19</span></label>
+        <label><input type="password" readonly/><span>20</span></label>
+        <label><input type="password" readonly/><span>21</span></label>
+        <label><input type="password" readonly/><span>22</span></label>
+        <label><input type="password" readonly/><span>23</span></label>
+        <label><input type="password" readonly/><span>24</span></label>
+        <label><input type="password" readonly/><span>25</span></label>
+        <label><input type="password" readonly/><span>26</span></label>
+        <label><input type="password" readonly/><span>27</span></label>
+        <label><input type="password" readonly/><span>28</span></label>
+        <label><input type="password" readonly/><span>29</span></label>
+        <label><input type="password" readonly/><span>30</span></label>
+        <label><input type="password" readonly/><span>31</span></label>
+        <label><input type="password" readonly/><span>32</span></label>
+    </section>
+</section>
+<script>
+    (function () {
+
+        function PasswordSymbol(el) {
+            this._el = el;
+        }
+        PasswordSymbol.prototype.init = function () {
+            this._el.value = PasswordSymbol.NULL;
+            this._el.addEventListener("click", function (evt) {
+                evt.target.focus();
+            });
+            this._el.addEventListener("focus", function (evt) {
+                var clipboard = evt.target.value;
+                if (PasswordSymbol.Clipboard === clipboard || clipboard === PasswordSymbol.NULL) return;
+                PasswordSymbol.Clipboard = clipboard;
+                PasswordSymbol.copyToClipboard(clipboard);
+                evt.target.focus();
+                console.log(evt.target.value);
+            });
+        };
+        PasswordSymbol.prototype.setSymbol = function (val) {
+            this._el.value = val;
+        };
+        PasswordSymbol.copyToClipboard = function (val) {
+            var el = document.createElement("textarea");
+            el.value = val;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand("copy");
+            document.body.removeChild(el);
+        };
+        PasswordSymbol.NULL = "_";
+        PasswordSymbol.Clipboard = null;
+
+        var symbols = [];
+        document.querySelectorAll(".partial-password input").forEach(function (el) {
+            var symbol = new PasswordSymbol(el);
+            symbol.init();
+            symbols.push(symbol);
+        });
+
+        var passwordEl = document.querySelector(".full-password input");
+        passwordEl.focus();
+        passwordEl.addEventListener("keyup", function (evt) {
+            var password = evt.target.value;
+            for (var i = 0; i < symbols.length; i++) {
+                symbols[i].setSymbol(password.charAt(i) || PasswordSymbol.NULL);
+            }
+        });
+
+    })();
+</script>
