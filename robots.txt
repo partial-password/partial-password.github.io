@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://gaevoy.com/sitemap.xml
+Sitemap: https://partial-password.github.io/sitemap.xml
