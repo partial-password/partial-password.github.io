@@ -65,6 +65,10 @@
         display: block;
         text-align: center;
     }
+
+    .hidden {
+        display: none !important;
+    }
 </style>
 
 <section class="partial-password-calc">
@@ -108,54 +112,71 @@
     </section>
 </section>
 <script>
-    (function () {
+    function PasswordSymbol(el) {
+        this._el = el;
+    }
 
-        function PasswordSymbol(el) {
-            this._el = el;
-        }
-        PasswordSymbol.prototype.init = function () {
-            this._el.value = PasswordSymbol.NULL;
-            this._el.addEventListener("click", function (evt) {
-                evt.target.focus();
-            });
-            this._el.addEventListener("focus", function (evt) {
-                var clipboard = evt.target.value;
-                if (PasswordSymbol.Clipboard === clipboard || clipboard === PasswordSymbol.NULL) return;
-                PasswordSymbol.Clipboard = clipboard;
-                PasswordSymbol.copyToClipboard(clipboard);
-                evt.target.focus();
-                console.log(evt.target.value);
-            });
-        };
-        PasswordSymbol.prototype.setSymbol = function (val) {
-            this._el.value = val;
-        };
-        PasswordSymbol.copyToClipboard = function (val) {
-            var el = document.createElement("textarea");
-            el.value = val;
-            document.body.appendChild(el);
-            el.select();
+    PasswordSymbol.prototype.init = function () {
+        this._el.value = PasswordSymbol.NULL;
+        this._el.addEventListener("click", function (evt) {
+            evt.target.select();
+        });
+        var self = this;
+        this._el.addEventListener("focus", function (evt) {
+            self.copyToClipboard();
+        });
+    };
+    PasswordSymbol.prototype.setSymbol = function (val) {
+        this._el.value = val;
+    };
+    PasswordSymbol.prototype.isVisible = function (val) {
+        if (val)
+            this._el.parentNode.classList.remove("hidden");
+        else
+            this._el.parentNode.classList.add("hidden");
+    };
+    PasswordSymbol.prototype.copyToClipboard = function () {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(this._el.value);
+        } else if (window.clipboardData) {
+            window.clipboardData.setData("Text", this._el.value);
+        } else { // Edge
+            this._el.type = "text";
             document.execCommand("copy");
-            document.body.removeChild(el);
-        };
-        PasswordSymbol.NULL = "_";
-        PasswordSymbol.Clipboard = null;
+            this._el.type = "password";
+        }
 
+    };
+    PasswordSymbol.NULL = "_";
+
+    (function () {
         var symbols = [];
-        document.querySelectorAll(".partial-password input").forEach(function (el) {
-            var symbol = new PasswordSymbol(el);
+        var symbolElements = document.querySelectorAll(".partial-password input");
+        for (var i = 0; i < symbolElements.length; i++) {
+            var symbol = new PasswordSymbol(symbolElements[i]);
             symbol.init();
             symbols.push(symbol);
+        }
+        onPasswordChanged("");
+
+        var resetTimer;
+        document.querySelector(".full-password input").addEventListener("keyup", function (evt) {
+            onPasswordChanged(evt.target.value);
+            window.clearTimeout(resetTimer);
+            resetTimer = window.setTimeout(function () {
+                evt.target.value = "";
+                onPasswordChanged(evt.target.value);
+            }, 60000);
         });
 
-        var passwordEl = document.querySelector(".full-password input");
-        passwordEl.focus();
-        passwordEl.addEventListener("keyup", function (evt) {
-            var password = evt.target.value;
+        function onPasswordChanged(password) {
+            var noOfVisibleSymbols = Math.max(Math.ceil(password.length / 4) * 4, 8);
             for (var i = 0; i < symbols.length; i++) {
                 symbols[i].setSymbol(password.charAt(i) || PasswordSymbol.NULL);
+                symbols[i].isVisible(i < noOfVisibleSymbols);
             }
-        });
+        }
+
 
     })();
 </script>
