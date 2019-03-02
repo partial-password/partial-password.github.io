@@ -150,6 +150,7 @@
     PasswordSymbol.NULL = "_";
 
     (function () {
+        var resetTimer;
         var symbols = [];
         var symbolElements = document.querySelectorAll(".partial-password input");
         for (var i = 0; i < symbolElements.length; i++) {
@@ -157,19 +158,18 @@
             symbol.init();
             symbols.push(symbol);
         }
-        onPasswordChanged("");
+        updateSymbols("");
 
-        var resetTimer;
-        document.querySelector(".full-password input").addEventListener("keyup", function (evt) {
-            onPasswordChanged(evt.target.value);
+        document.querySelector(".full-password input").addEventListener("input", function (evt) {
+            updateSymbols(evt.target.value);
             window.clearTimeout(resetTimer);
             resetTimer = window.setTimeout(function () {
                 evt.target.value = "";
-                onPasswordChanged(evt.target.value);
+                updateSymbols(evt.target.value);
             }, 60000);
         });
 
-        function onPasswordChanged(password) {
+        function updateSymbols(password) {
             var noOfVisibleSymbols = Math.max(Math.ceil(password.length / 4) * 4, 8);
             for (var i = 0; i < symbols.length; i++) {
                 symbols[i].setSymbol(password.charAt(i) || PasswordSymbol.NULL);
